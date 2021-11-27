@@ -65,6 +65,11 @@ function Resolve-DependenciesInScriptProperty {
     end { return $dependencies }
 }
 
+# Return simple array of unique strings representing the applications queries to be resolved
+# Including:
+#   depends property
+#   Dependencies for installation types (innounp, lessmsi, 7zip, zstd, ...)
+#   Dependencies used in scripts (lessmsi, 7zip, zstd, ...)
 function Resolve-InstallationDependency {
     <#
     .SYNOPSIS
@@ -218,6 +223,21 @@ function Get-ApplicationDependency {
         'Application' = $self
         'Deps'        = $deps
     }
+
+    $deps = @(Resolve-InstallationDependency -Manifest $information.ManifestObject -Architecture $Architecture -IncludeInstalled:$IncludeInstalled) + `
+    @(Resolve-DependsProperty -Manifest $information.ManifestObject) | Select-Object -Unique
+
+    foreach ($dep in $deps) {
+        if ($Resolved.ApplicationName -notcontains $dep) {
+            if ($Unresolved -contains $dep) {
+                throw [ScoopException] "Circular dependency detected: '$($information.ApplicationName)' -> '$dep'." # TerminatingError thrown
+            }
+
+            Resolve-SpecificQueryDependency -ApplicationQuery $dep -Architecture $Architecture -Resolved $Resolved -Unresolved $Unresolved -IncludeInstalled:$IncludeInstalled
+        }
+    }
+    $Resolved.Add($information) | Out-Null
+    $Unresolved = $Unresolved -ne $ApplicationQuery # Remove from unresolved
 }
 
 function Resolve-MultipleApplicationDependency {
