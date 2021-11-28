@@ -234,6 +234,8 @@ function Get-ApplicationDependency {
             }
 
             Resolve-SpecificQueryDependency -ApplicationQuery $dep -Architecture $Architecture -Resolved $Resolved -Unresolved $Unresolved -IncludeInstalled:$IncludeInstalled
+        } else {
+            Write-UserMessage -Message "[$ApplicationQuery] There is already registered dependency '$(($Resolved | Where-Object -Property 'ApplicationName' -EQ -Value $dep).Print)' for '$dep'" -Info
         }
     }
     $Resolved.Add($information) | Out-Null
