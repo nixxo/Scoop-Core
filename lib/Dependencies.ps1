@@ -223,23 +223,6 @@ function Get-ApplicationDependency {
         'Application' = $self
         'Deps'        = $deps
     }
-
-    $deps = @(Resolve-InstallationDependency -Manifest $information.ManifestObject -Architecture $Architecture -IncludeInstalled:$IncludeInstalled) + `
-    @(Resolve-DependsProperty -Manifest $information.ManifestObject) | Select-Object -Unique
-
-    foreach ($dep in $deps) {
-        if ($Resolved.ApplicationName -notcontains $dep) {
-            if ($Unresolved -contains $dep) {
-                throw [ScoopException] "Circular dependency detected: '$($information.ApplicationName)' -> '$dep'." # TerminatingError thrown
-            }
-
-            Resolve-SpecificQueryDependency -ApplicationQuery $dep -Architecture $Architecture -Resolved $Resolved -Unresolved $Unresolved -IncludeInstalled:$IncludeInstalled
-        } else {
-            Write-UserMessage -Message "[$ApplicationQuery] There is already registered dependency '$(($Resolved | Where-Object -Property 'ApplicationName' -EQ -Value $dep).Print)' for '$dep'" -Info
-        }
-    }
-    $Resolved.Add($information) | Out-Null
-    $Unresolved = $Unresolved -ne $ApplicationQuery # Remove from unresolved
 }
 
 function Resolve-MultipleApplicationDependency {
