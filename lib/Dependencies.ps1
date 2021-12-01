@@ -65,11 +65,6 @@ function Resolve-DependenciesInScriptProperty {
     end { return $dependencies }
 }
 
-# Return simple array of unique strings representing the applications queries to be resolved
-# Including:
-#   depends property
-#   Dependencies for installation types (innounp, lessmsi, 7zip, zstd, ...)
-#   Dependencies used in scripts (lessmsi, 7zip, zstd, ...)
 function Resolve-InstallationDependency {
     <#
     .SYNOPSIS
