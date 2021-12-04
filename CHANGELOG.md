@@ -2,7 +2,7 @@
 
 ## [0.6.5](https://github.com/Ash258/Scoop-Core/milestone/5)
 
-- **scoop-config**: Add `--global`, `-g` options
+- **scoop-info**: Add `--global`, `-g` options
 - Adopt new resolve function for parameter passing
     - **scoop-info**
 - Refactor dependencies handling
