@@ -9,6 +9,7 @@ Use 'Write-UserMessage -Warning' to highlight the issue, and follow up with the 
     @('Helpers', 'New-IssuePrompt'),
     @('buckets', 'Get-KnownBucket'),
     @('decompress', 'Expand-7zipArchive'),
+    @('install', 'install_app'),
     @('Git', 'Invoke-GitCmd')
 ) | ForEach-Object {
     if (!([bool] (Get-Command $_[1] -ErrorAction 'Ignore'))) {
