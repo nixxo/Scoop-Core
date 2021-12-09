@@ -31,8 +31,7 @@ function install_psmodule($manifest, $dir, $global) {
         & "$env:COMSPEC" /c "rmdir `"$linkFrom`""
     }
 
-    # TODO: Drop comspec
-    & "$env:COMSPEC" /c "mklink /j `"$linkFrom`" `"$dir`"" | Out-Null
+    New-DirectoryJunctionLink -LinkName $linkFrom -Target $dir | Out-Null
 }
 
 function uninstall_psmodule($manifest, $dir, $global) {

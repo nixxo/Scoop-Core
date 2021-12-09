@@ -134,19 +134,22 @@ function Invoke-SystemComSpecCommand {
 function New-DirectoryJunctionLink {
     <#
     .SYNOPSIS
-        Create a new directory junction.
+        Creates a new directory junction.
     .DESCRIPTION
         On Unix ln --symbolic will be used instead.
+        On Windows +R attribute will be set on the link.
     .PARAMETER Target
         Specifies the real directory path.
     .PARAMETER LinkName
         Specifies the symbolic link name.
     #>
     [CmdletBinding()]
-    param([String] $Target, [String] $LinkName)
+    param([Parameter(Mandatory)] [String] $Target, [Parameter(Mandatory)] [String] $LinkName)
 
     process {
-        Invoke-SystemCommand -Windows "MKLINK /J ""$LinkName"" ""$Target""" -Unix "ln --symbolic ""$Target"" ""$LinkName"""
+        Invoke-SystemComSpecCommand `
+            -Windows "MKLINK /J ""$LinkName"" ""$Target""&&ATTRIB +R ""$LinkName"" /L" `
+            -Unix "ln --symbolic ""$Target"" ""$LinkName"""
     }
 }
 

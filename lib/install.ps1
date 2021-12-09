@@ -1104,8 +1104,7 @@ function link_current($versiondir) {
         & "$env:COMSPEC" /c rmdir $currentdir
     }
 
-    & "$env:COMSPEC" /c mklink /j $currentdir $versiondir | Out-Null
-    attrib $currentdir +R /L
+    New-DirectoryJunctionLink -Target $versiondir -LinkName $currentdir | Out-Null
 
     return $currentdir
 }
@@ -1373,8 +1372,7 @@ function persist_data($manifest, $original_dir, $persist_dir) {
             # create link
             if (is_directory $target) {
                 # target is a directory, create junction
-                & "$env:COMSPEC" /c "mklink /j `"$source`" `"$target`"" | Out-Null
-                attrib $source +R /L
+                New-DirectoryJunctionLink -LinkName $source -Target $target | Out-Null
             } else {
                 # target is a file, create hard link
                 & "$env:COMSPEC" /c "mklink /h `"$source`" `"$target`"" | Out-Null
