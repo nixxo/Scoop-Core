@@ -149,7 +149,7 @@ function New-DirectoryJunctionLink {
     process {
         Invoke-SystemComSpecCommand `
             -Windows "MKLINK /J ""$LinkName"" ""$Target""&&ATTRIB +R ""$LinkName"" /L" `
-            -Unix "ln --symbolic ""$Target"" ""$LinkName"""
+            -Unix "ln --symbolic '$Target' '$LinkName'"
     }
 }
 
@@ -192,7 +192,7 @@ function Remove-DirectoryJunctionLink {
 
         Invoke-SystemComSpecCommand `
             -Windows "ATTRIB -R /L ""$LinkName""&&RMDIR $prm""$LinkName""" `
-            -Unix "rm ""$LinkName"""
+            -Unix "rm '$LinkName'"
     }
 }
 
