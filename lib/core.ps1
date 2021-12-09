@@ -176,16 +176,23 @@ function Remove-DirectoryJunctionLink {
         Removes directory junction.
     .PARAMETER Target
         Specifies the directory junction path.
+    .PARAMETER Recurse
+        Specifies to use /S /Q on Windows.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [Alias('Link', 'Target', 'LiteralPath', 'Path', 'Directory')]
-        [String] $LinkName
+        [String] $LinkName,
+        [Switch] $Recurse
     )
 
     process {
-        Invoke-SystemCommand -Windows "RMDIR ""$LinkName""" -Unix "rm ""$LinkName"""
+        $prm = if ($Recurse) { '/S /Q ' } else { '' }
+
+        Invoke-SystemComSpecCommand `
+            -Windows "ATTRIB -R /L ""$LinkName""&&RMDIR $prm""$LinkName""" `
+            -Unix "rm ""$LinkName"""
     }
 }
 

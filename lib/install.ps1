@@ -1032,9 +1032,9 @@ function create_shims($manifest, $dir, $global, $arch) {
         Write-UserMessage -Message "Creating shim for '$name'." -Output:$false
 
         $bin = Join-Path $dir $target
-        if (Test-Path $bin -PathType Leaf) {
+        if (Test-Path $bin -PathType 'Leaf') {
             $bin = $bin
-        } elseif (Test-Path $target -PathType Leaf) {
+        } elseif (Test-Path $target -PathType 'Leaf') {
             $bin = $target
         } else {
             $bin = search_in_path $target
@@ -1060,7 +1060,7 @@ function rm_shim($name, $shimdir) {
     # Other shim types might be present
     '', '.exe', '.shim', '.cmd' | ForEach-Object {
         $p = Join-Path $shimdir "$name$_"
-        if (Test-Path $p -PathType Leaf) { Remove-Item $p }
+        if (Test-Path $p -PathType 'Leaf') { Remove-Item $p }
     }
 }
 
@@ -1098,10 +1098,8 @@ function link_current($versiondir) {
         throw [ScoopException] "Version 'current' is not allowed!" # TerminatingError thrown
     }
 
-    if (Test-Path $currentdir) {
-        # remove the junction
-        attrib -R /L $currentdir
-        & "$env:COMSPEC" /c rmdir $currentdir
+    if (Test-Path -LiteralPath $currentdir -PathType 'Container') {
+        Remove-DirectoryJunctionLink -LinkName $currentdir
     }
 
     New-DirectoryJunctionLink -Target $versiondir -LinkName $currentdir | Out-Null
@@ -1118,14 +1116,10 @@ function unlink_current($versiondir) {
     if (get_config 'NO_JUNCTIONS') { return $versiondir }
     $currentdir = current_dir $versiondir
 
-    if (Test-Path $currentdir) {
+    if (Test-Path -LiteralPath $currentdir -PathType 'Container') {
         Write-UserMessage -Message "Unlinking $(friendly_path $currentdir)" -Output:$false
 
-        # remove read-only attribute on link
-        attrib $currentdir -R /L
-
-        # remove the junction
-        & "$env:COMSPEC" /c "rmdir `"$currentdir`""
+        Remove-DirectoryJunctionLink -LinkName $currentdir
 
         return $currentdir
     }
@@ -1391,10 +1385,7 @@ function unlink_persist_data($dir) {
             $filepath = $file.FullName
             # directory (junction)
             if ($file -is [System.IO.DirectoryInfo]) {
-                # remove read-only attribute on the link
-                attrib -R /L $filepath
-                # remove the junction
-                & "$env:COMSPEC" /c "rmdir /s /q `"$filepath`""
+                Remove-DirectoryJunctionLink -LinkName $filepath -Recurse
             } else {
                 # remove the hard link
                 & "$env:COMSPEC" /c "del `"$filepath`""

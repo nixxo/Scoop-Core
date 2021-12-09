@@ -52,7 +52,7 @@ if ($version) {
     Get-LocalBucket | ForEach-Object {
         $b = Find-BucketDirectory $_ -Root
 
-        if (Join-Path $b '.git' | Test-Path -PathType Container) {
+        if (Join-Path $b '.git' | Test-Path -PathType 'Container') {
             Write-UserMessage -Message "'$_' bucket:" -Output
             Invoke-GitCmd -Command 'VersionLog' -Repository $b
             Write-UserMessage -Message '' -Output
