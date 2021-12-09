@@ -1135,6 +1135,9 @@ function unlink_current($versiondir) {
 
 # to undo after installers add to path so that scoop manifest can keep track of this instead
 function ensure_install_dir_not_in_path($dir, $global) {
+    # TODO: Properly handle unix
+    if ($SHOVEL_IS_UNIX) { return }
+
     $path = (env 'path' $global)
 
     $fixed, $removed = find_dir_or_subdir $path "$dir"
@@ -1155,7 +1158,7 @@ function find_dir_or_subdir($path, $dir) {
     $dir = $dir.TrimEnd('\')
     $fixed = @()
     $removed = @()
-    $path.Split(';') | ForEach-Object {
+    $path -split ';' | ForEach-Object {
         if ($_) {
             if (($_ -eq $dir) -or ($_ -like "$dir\*")) { $removed += $_ }
             else { $fixed += $_ }
