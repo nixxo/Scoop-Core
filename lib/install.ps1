@@ -18,7 +18,7 @@ function Deny-ArmInstallation {
     param($Manifest, $Architecture)
 
     process {
-        if (Test-IsArmArchitecture) {
+        if ($SHOVEL_IS_ARM_ARCH) {
             if (($Architecture -eq 'arm64') -and !($Manifest.'architecture'.'arm64')) {
                 throw [ScoopException] "Manifest does not explicitly support 'arm64' architecture. Try to install with '--arch 32bit' or '--arch 64bit' to use Windows arm emulation."
             }
@@ -89,7 +89,7 @@ function install_app($app, $architecture, $global, $suggested, $use_cache = $tru
     $persist_dir = persistdir $app $global
 
     # Suggest installing arm64
-    if ((Test-IsArmArchitecture) -and ($architecture -ne 'arm64') -and ($manifest.'architecture'.'arm64')) {
+    if (($SHOVEL_IS_ARM_ARCH) -and ($architecture -ne 'arm64') -and ($manifest.'architecture'.'arm64')) {
         Write-UserMessage -Message 'Manifest explicitly supports arm64. Consider to install using arm64 version to achieve best compatibility/performance.' -Success
     }
 
