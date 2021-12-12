@@ -10,7 +10,7 @@ Describe -Tag 'Manifests' 'manifest-validation' {
         $schema = "$PSScriptRoot/../schema.json"
         Add-Type -Path "$PSScriptRoot\..\supporting\validator\bin\Newtonsoft.Json.dll"
         Add-Type -Path "$PSScriptRoot\..\supporting\validator\bin\Newtonsoft.Json.Schema.dll"
-        Add-Type -Path "$PSScriptRoot\..\supporting\validator\bin\YamlDotNet.dll"
+        & "$PSScriptRoot\..\supporting\yaml\bin\Load-Assemblies.ps1"
         Add-Type -Path "$PSScriptRoot\..\supporting\validator\bin\Scoop.Validator.dll"
     }
 
