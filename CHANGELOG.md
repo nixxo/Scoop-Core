@@ -4,6 +4,9 @@
 
 🎉🎉 YAML typed manifest and archived manifest installation support 🎉🎉
 
+- **CI**: Allow validation of YML typed manifests
+- **Unix**: Supress errors about environment variables, until fully implemented.
+    - 🎉 Manifest installation on Unix is now partially implemented
 - **scoop-uninstall**: Warn user when he tries to uninstall dependency, which is still needed
 - **scoop-status**: Detect if applications, which were installed as dependency are still needed
 - **scoop-list**: Show if application was installed as dependency
