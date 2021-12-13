@@ -1324,56 +1324,57 @@ function persist_def($persist) {
 }
 
 function persist_data($manifest, $original_dir, $persist_dir) {
+    # TODO: Architecture specific persist?? Are there any apps, that would benefit?
     $persist = $manifest.persist
-    if ($persist) {
-        $persist_dir = Confirm-DirectoryExistence -LiteralPath $persist_dir
+    if (!$persist) { return }
 
-        if ($persist -is [String]) {
-            $persist = @($persist);
+    $persist_dir = Confirm-DirectoryExistence -LiteralPath $persist_dir
+
+    if ($persist -is [String]) {
+        $persist = @($persist);
+    }
+
+    foreach ($p in $persist) {
+        $source, $target = persist_def $p
+
+        Write-UserMessage -Message "Persisting $source" -Output:$false
+
+        $source = $source.TrimEnd('/').TrimEnd('\\')
+
+        $source = Join-Path $original_dir $source
+        $target = Join-Path $persist_dir $target
+
+        # if we have had persist data in the store, just create link and go
+        if (Test-Path $target) {
+            # if there is also a source data, rename it (to keep a original backup)
+            if (Test-Path $source) {
+                Move-Item $source "$source.original" -Force
+            }
+            # we don't have persist data in the store, move the source to target, then create link
+        } elseif (Test-Path $source) {
+            # ensure target parent folder exist
+            Split-Path $target | Confirm-DirectoryExistence | Out-Null
+            Move-Item $source $target
+            # we don't have neither source nor target data! we need to crate an empty target,
+            # but we can't make a judgement that the data should be a file or directory...
+            # so we create a directory by default. to avoid this, use pre_install
+            # to create the source file before persisting (DO NOT use post_install)
+        } else {
+            $target = New-Object System.IO.DirectoryInfo($target)
+            Confirm-DirectoryExistence -LiteralPath $target | Out-Null
         }
 
-        $persist | ForEach-Object {
-            $source, $target = persist_def $_
+        # Mklink throw 'The system cannot find the path specified.' if the full path of the link does not exist.
+        $splitted = Split-Path $source -Parent
+        if ($splitted -ne $original_dir) { Confirm-DirectoryExistence -LiteralPath $splitted | Out-Null }
 
-            Write-UserMessage -Message "Persisting $source" -Output:$false
-
-            $source = $source.TrimEnd('/').TrimEnd('\\')
-
-            $source = Join-Path $original_dir $source
-            $target = Join-Path $persist_dir $target
-
-            # if we have had persist data in the store, just create link and go
-            if (Test-Path $target) {
-                # if there is also a source data, rename it (to keep a original backup)
-                if (Test-Path $source) {
-                    Move-Item $source "$source.original" -Force
-                }
-                # we don't have persist data in the store, move the source to target, then create link
-            } elseif (Test-Path $source) {
-                # ensure target parent folder exist
-                Split-Path $target | Confirm-DirectoryExistence | Out-Null
-                Move-Item $source $target
-                # we don't have neither source nor target data! we need to crate an empty target,
-                # but we can't make a judgement that the data should be a file or directory...
-                # so we create a directory by default. to avoid this, use pre_install
-                # to create the source file before persisting (DO NOT use post_install)
-            } else {
-                $target = New-Object System.IO.DirectoryInfo($target)
-                Confirm-DirectoryExistence -LiteralPath $target | Out-Null
-            }
-
-            # Mklink throw 'The system cannot find the path specified.' if the full path of the link does not exist.
-            $splitted = Split-Path $source -Parent
-            if ($splitted -ne $original_dir) { Confirm-DirectoryExistence -LiteralPath $splitted | Out-Null }
-
-            # create link
-            if (is_directory $target) {
-                # target is a directory, create junction
-                New-DirectoryJunctionLink -LinkName $source -Target $target | Out-Null
-            } else {
-                # target is a file, create hard link
-                & "$env:COMSPEC" /c "mklink /h `"$source`" `"$target`"" | Out-Null
-            }
+        # create link
+        if (is_directory $target) {
+            # target is a directory, create junction
+            New-DirectoryJunctionLink -LinkName $source -Target $target | Out-Null
+        } else {
+            # target is a file, create hard link
+            New-FileHardLink -LinkName $source -Target $target | Out-Null
         }
     }
 }
@@ -1388,7 +1389,7 @@ function unlink_persist_data($dir) {
                 Remove-DirectoryJunctionLink -LinkName $filepath -Recurse
             } else {
                 # remove the hard link
-                & "$env:COMSPEC" /c "del `"$filepath`""
+                Remove-FileHardLink -LinkName $filepath
             }
         }
     }

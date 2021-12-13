@@ -153,23 +153,6 @@ function New-DirectoryJunctionLink {
     }
 }
 
-function New-FileHardLink {
-    <#
-    .SYNOPSIS
-        Create a new file hard link.
-    .PARAMETER Target
-        Specifies the real directory path.
-    .PARAMETER LinkName
-        Specifies the symbolic link name.
-    #>
-    [CmdletBinding()]
-    param([String] $Target, [String] $LinkName)
-
-    process {
-        Invoke-SystemCommand -Windows "MKLINK /H ""$LinkName"" ""$Target""" -Unix "ln ""$Target"" ""$LinkName"""
-    }
-}
-
 function Remove-DirectoryJunctionLink {
     <#
     .SYNOPSIS
@@ -192,6 +175,47 @@ function Remove-DirectoryJunctionLink {
 
         Invoke-SystemComSpecCommand `
             -Windows "ATTRIB -R /L ""$LinkName""&&RMDIR $prm""$LinkName""" `
+            -Unix "rm '$LinkName'"
+    }
+}
+
+function New-FileHardLink {
+    <#
+    .SYNOPSIS
+        Create a new file hard link.
+    .PARAMETER Target
+        Specifies the real directory path.
+    .PARAMETER LinkName
+        Specifies the symbolic link name.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [String] $Target, [Parameter(Mandatory)] [String] $LinkName)
+
+    process {
+        Invoke-SystemComSpecCommand `
+            -Windows "MKLINK /H ""$LinkName"" ""$Target""" `
+            -Unix "ln '$Target' '$LinkName'"
+    }
+}
+
+function Remove-FileHardLink {
+
+    <#
+    .SYNOPSIS
+        Removes file hard link.
+    .PARAMETER Target
+        Specifies the full path to the link.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [Alias('Link', 'Target', 'LiteralPath', 'Path')]
+        [String] $LinkName
+    )
+
+    process {
+        Invoke-SystemComSpecCommand `
+            -Windows "DEL ""$LinkName""" `
             -Unix "rm '$LinkName'"
     }
 }
