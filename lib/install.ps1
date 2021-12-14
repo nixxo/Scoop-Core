@@ -1032,9 +1032,9 @@ function create_shims($manifest, $dir, $global, $arch) {
         Write-UserMessage -Message "Creating shim for '$name'." -Output:$false
 
         $bin = Join-Path $dir $target
-        if (Test-Path $bin -PathType 'Leaf') {
+        if (Test-Path -LiteralPath $bin -PathType 'Leaf') {
             $bin = $bin
-        } elseif (Test-Path $target -PathType 'Leaf') {
+        } elseif (Test-Path -LiteralPath $target -PathType 'Leaf') {
             $bin = $target
         } else {
             $bin = search_in_path $target
@@ -1060,7 +1060,7 @@ function rm_shim($name, $shimdir) {
     # Other shim types might be present
     '', '.exe', '.shim', '.cmd' | ForEach-Object {
         $p = Join-Path $shimdir "$name$_"
-        if (Test-Path $p -PathType 'Leaf') { Remove-Item $p }
+        if (Test-Path -LiteralPath $p -PathType 'Leaf') { Remove-Item $p }
     }
 }
 
@@ -1330,9 +1330,7 @@ function persist_data($manifest, $original_dir, $persist_dir) {
 
     $persist_dir = Confirm-DirectoryExistence -LiteralPath $persist_dir
 
-    if ($persist -is [String]) {
-        $persist = @($persist);
-    }
+    if ($persist -is [String]) { $persist = @($persist) }
 
     foreach ($p in $persist) {
         $source, $target = persist_def $p

@@ -74,7 +74,7 @@ function setup_working($name) {
 
     if (!$env:TEMP) {
         $env:TEMP = 'C:\temp'
-        if ($isWindows -eq $false) { $env:TEMP = '/tmp' }
+        if ($IsWindows -eq $false) { $env:TEMP = '/tmp' }
     }
 
     if (!(Test-Path -LiteralPath $env:TEMP -PathType 'Container')) {

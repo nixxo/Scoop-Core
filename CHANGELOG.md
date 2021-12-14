@@ -4,13 +4,17 @@
 
 🎉🎉 YAML typed manifest and archived manifest installation support 🎉🎉
 
-- **CI**: Allow validation of YML typed manifests
-- **Unix**: Supress errors about environment variables, until fully implemented.
-    - 🎉 Manifest installation on Unix is now partially implemented
+- **Unix**:
+    - Fix `--version` command under *nix
+    - Supress errors about environment variables, until fully implemented.
+        - 🎉 Manifest installation on Unix is now partially implemented
+- Cache the arm check to prevent multiple calls of `uname` on *nix
 - **scoop-uninstall**: Warn user when he tries to uninstall dependency, which is still needed
 - **scoop-status**: Detect if applications, which were installed as dependency are still needed
-- **scoop-list**: Show if application was installed as dependency
-    - If it was installed as dependency, the parent application will be shown as `{application}` in blue
+- **scoop-list**:
+    - Fix detection of installed status for PowerShell 5
+    - Show if application was installed as dependency
+        - If it was installed as dependency, the parent application will be shown as `{application}` in blue
 - Adopt new resolve function for parameter passing
     - **scoop-install**
     - **scoop-depends**

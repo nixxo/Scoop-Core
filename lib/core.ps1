@@ -89,13 +89,13 @@ function Test-IsUnix {
     .SYNOPSIS
         Custom check to identify non-windows hosts.
     .DESCRIPTION
-        $isWindows is not defind in PW5, thus null and boolean checks are needed.
+        $IsWindows is not defind in PW5, thus null and boolean checks are needed.
     #>
     [CmdletBinding()]
     [OutputType([bool])]
     param()
 
-    process { return !(($null -eq $isWindows) -or ($isWindows -eq $true)) }
+    process { return !(($null -eq $IsWindows) -or ($IsWindows -eq $true)) }
 }
 
 function Invoke-SystemComSpecCommand {
