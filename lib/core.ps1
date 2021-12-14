@@ -1010,6 +1010,10 @@ function fullpath($path) {
 #       for all communication with api.github.com
 Optimize-SecurityProtocol
 
+# General variables
+$SHOVEL_DEBUG_ENABLED = Test-ScoopDebugEnabled
+$SHOVEL_IS_UNIX = Test-IsUnix
+$SHOVEL_IS_ARM_ARCH = Test-IsArmArchitecture
 $SHOVEL_USERAGENT = Get-UserAgent
 
 # TODO: Drop
@@ -1050,11 +1054,6 @@ $SHOVEL_GENERAL_MANIFESTS_DIRECTORY = Join-Path $SCOOP_ROOT_DIRECTORY 'manifests
 $configHome = $env:XDG_CONFIG_HOME, "$env:USERPROFILE\.config" | Where-Object { -not [String]::IsNullOrEmpty($_) } | Select-Object -First 1
 $SCOOP_CONFIGURATION_FILE = Join-Path $configHome 'scoop\config.json'
 $SCOOP_CONFIGURATION = load_cfg $SCOOP_CONFIGURATION_FILE
-
-# General variables
-$SHOVEL_DEBUG_ENABLED = Test-ScoopDebugEnabled
-$SHOVEL_IS_UNIX = Test-IsUnix
-$SHOVEL_IS_ARM_ARCH = Test-IsArmArchitecture
 
 # TODO: Remove deprecated variables
 $scoopdir = $SCOOP_ROOT_DIRECTORY
