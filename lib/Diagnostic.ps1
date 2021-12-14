@@ -107,7 +107,7 @@ function Test-DiagBucket {
     if ($all -contains 'extras') {
         $path = Find-BucketDirectory -Name 'extras' -Root
 
-        if ((Invoke-GitCmd -Repository $path -Command 'remote' -Argument 'get-url', 'origin') -match 'lukesampson') {
+        if ((Invoke-GitCmd -Repository $path -Command 'remote' -Argument 'get-url', '''origin''') -match 'lukesampson') {
             Write-UserMessage -Message "'extras' bucket was moved" -Warning
             Write-UserMessage -Message @(
                 '  Fixable with running following command:'

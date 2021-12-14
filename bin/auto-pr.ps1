@@ -80,7 +80,7 @@ function _gitWrapper {
 
     process {
         $utility = if ($GH) { 'gh' } else { 'git' }
-        $mes = "$utility -C ""$Repository"" $Command $($Argument -join ' ')"
+        $mes = "$utility -C '$Repository' $Command $($Argument -join ' ')"
         Write-UserMessage -Message $mes -Color 'Green'
 
         $output = Invoke-GitCmd -Repository $Repository -Command $Command -Argument $Argument -Proxy:$Proxy
@@ -171,11 +171,11 @@ $splat = @{ 'Repository' = $RepositoryRoot }
 Write-UserMessage -Message 'Updating ...' -ForegroundColor 'DarkCyan'
 $master = _selectMasterBranch
 if ($Push) {
-    _gitWrapper @splat -Command 'pull' -Argument 'origin', $master -Proxy
+    _gitWrapper @splat -Command 'pull' -Argument '''origin''', "'$master'" -Proxy
     _gitWrapper @splat -Command 'checkout' -Argument $master
 } else {
-    _gitWrapper @splat -Command 'pull' -Argument 'upstream', $master -Proxy
-    _gitWrapper @splat -Command 'push' -Argument 'origin', $master -Proxy
+    _gitWrapper @splat -Command 'pull' -Argument '''upstream''', "'$master'" -Proxy
+    _gitWrapper @splat -Command 'push' -Argument '''origin''', "'$master'" -Proxy
 }
 
 if (!$SkipCheckver) {
@@ -219,7 +219,7 @@ foreach ($changedFile in $manifestsToUpdate) {
     if ($Push) {
         Write-UserMessage -Message "Creating update $applicationName ($version) ..." -ForegroundColor 'DarkCyan'
 
-        _gitWrapper @splat -Command 'add' -Argument """$changedFile"""
+        _gitWrapper @splat -Command 'add' -Argument "'$changedFile'"
 
         # Archiving
         $archived = $false
@@ -228,7 +228,7 @@ foreach ($changedFile in $manifestsToUpdate) {
             $oldVersionManifest = @(_gitWrapper @splat -Command 'ls-files' -Argument '--other', '--exclude-standard') | Where-Object { $_ -like "bucket/old/$applicationName/*" }
 
             if ($oldVersionManifest) {
-                _gitWrapper @splat -Command 'add' -Argument """$oldVersionManifest"""
+                _gitWrapper @splat -Command 'add' -Argument "'$oldVersionManifest'"
                 $oldVersion = (Join-Path $RepositoryRoot $oldVersionManifest | Get-Item).BaseName
                 $archived = $true
             }
@@ -238,10 +238,9 @@ foreach ($changedFile in $manifestsToUpdate) {
         $status = _gitWrapper @splat -Command 'status' -Argument '--porcelain', '--untracked-files=no'
         $status = $status | Where-Object { $_ -match "M\s{2}.*$($gci.Name)" }
         if ($status -and $status.StartsWith('M  ') -and $status.EndsWith($gci.Name)) {
-            $delim = if ($SHOVEL_IS_UNIX) { '""' } else { '"' }
-            $commitA = '--message', "$delim${applicationName}: Update to version $version$delim"
+            $commitA = @('--message', "'${applicationName}: Update to version $version'")
             if ($archived) {
-                $commitA += '--message', "${delim}Archive version $oldVersion$delim"
+                $commitA += '--message', "'Archive version $oldVersion'"
             }
             _gitWrapper @splat -Command 'commit' -Argument $commitA
         } else {
@@ -254,10 +253,10 @@ foreach ($changedFile in $manifestsToUpdate) {
 
 if ($Push) {
     Write-UserMessage -Message 'Pushing updates ...' -ForegroundColor 'DarkCyan'
-    _gitWrapper @splat -Command 'push' -Argument 'origin', $master -Proxy
+    _gitWrapper @splat -Command 'push' -Argument '''origin''', "'$master'" -Proxy
 } else {
     Write-UserMessage -Message "Returning to $master branch and removing unstaged files ..." -ForegroundColor 'DarkCyan'
-    _gitWrapper @splat -Command 'checkout' -Argument '--force', $master -Proxy
+    _gitWrapper @splat -Command 'checkout' -Argument '--force', "'$master'" -Proxy
 }
 
 _gitWrapper @splat -Command 'reset' -Argument '--hard'

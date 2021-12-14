@@ -34,7 +34,7 @@ function Invoke-GitCmd {
         $preAction = @()
         if ($Repository) {
             $Repository = $Repository.TrimEnd('\').TrimEnd('/')
-            $preAction = @('-C', """$Repository""")
+            $preAction = @('-C', "'$Repository'")
         }
         $preAction += '--no-pager'
     }
@@ -53,18 +53,18 @@ function Invoke-GitCmd {
                 $action = 'log'
                 $para = @(
                     '--no-decorate'
-                    '--format="tformat: * %C(yellow)%h%Creset %<|(72,trunc)%s %C(cyan)%cr%Creset"'
+                    '--format=''tformat: * %C(yellow)%h%Creset %<|(72,trunc)%s %C(cyan)%cr%Creset'''
                     '--regexp-ignore-case'
                     '--extended-regexp'
                     '--invert-grep'
-                    '--grep="\[(scoop|shovel) skip\]"' # Ignore [scoop skip] [shovel skip]
-                    '--grep="^Merge [pcb]"' # Ignore merge commits
+                    '--grep=''\[(scoop|shovel) skip\]''' # Ignore [scoop skip] [shovel skip]
+                    '--grep=''^Merge [pcb]''' # Ignore merge commits
                 )
                 $Argument = $para + $Argument
             }
             'VersionLog' {
                 $action = 'log'
-                $Argument += '--oneline', '--max-count=1', 'HEAD'
+                $Argument += '--oneline', '--max-count=1', '''HEAD'''
             }
             default { $action = $Command }
         }
@@ -80,6 +80,6 @@ function Invoke-GitCmd {
             }
         }
 
-        Invoke-SystemComSpecCommand -Windows $commandToRunWindows -Unix $commandToRunNix
+        Invoke-SystemComSpecCommand -Windows """$commandToRunWindows""" -Unix """$commandToRunNix"""
     }
 }

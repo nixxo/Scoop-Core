@@ -50,7 +50,7 @@ if (Join-Path $ScoopInstallationDirectory '.git' | Test-Path -PathType 'Containe
     $target = @{ 'Repository' = $ScoopInstallationDirectory }
 
     Invoke-GitCmd @target -Command 'fetch' -Argument '--quiet', 'origin' -Proxy
-    $commits = Invoke-GitCmd @target -Command 'log' -Argument '--oneline', """HEAD..origin/$(get_config 'SCOOP_BRANCH' 'main')"""
+    $commits = Invoke-GitCmd @target -Command 'log' -Argument '--oneline', "'HEAD..origin/$(get_config 'SCOOP_BRANCH' 'main')'"
 
     if ($commits) { $UpdateRequired = $true }
 } else {
