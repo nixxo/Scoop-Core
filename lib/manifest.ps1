@@ -516,8 +516,9 @@ function save_installed_manifest($app, $bucket, $dir, $url) {
         # TODO: YAML
         Join-Path $dir 'scoop-manifest.json' | Out-UTF8Content -Content ($wc.DownloadString($url))
     } else {
-        # TODO: YAML
-        Copy-Item (manifest_path $app $bucket) (Join-Path $dir 'scoop-manifest.json')
+        $manifest_path = manifest_path $app $bucket
+        $manifest_dest = 'scoop-manifest' + (Get-ChildItem $manifest_path).Extension
+        Copy-Item ($manifest_path) (Join-Path $dir $manifest_dest)
     }
 }
 
